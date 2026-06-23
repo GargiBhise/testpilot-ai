@@ -22,3 +22,16 @@ def detect_framework(files: list[str]):
         return {"framework": "FastAPI / Python", "language": "Python", "test_strategy": "api"}
 
     return {"framework": "Unknown", "language": "Unknown", "test_strategy": "manual-review"}
+
+def discover_pages(files: list[str]):
+    pages = []
+
+    for file in files:
+        filename = file.split("/")[-1]
+
+        if filename.endswith((".js", ".jsx", ".tsx", ".ts")):
+            if filename not in ["App.js", "index.js"]:
+                page_name = filename.split(".")[0]
+                pages.append(page_name)
+
+    return list(set(pages))
