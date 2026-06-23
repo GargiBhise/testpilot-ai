@@ -1,5 +1,5 @@
 from urllib.parse import urlparse
-
+from repo_analyzer import detect_framework, discover_pages
 import httpx
 from fastapi import HTTPException
 
@@ -23,7 +23,8 @@ def get_repo_metadata(repo_url: str):
     
     repo_data = response.json()
     file_tree = get_repo_file_tree(owner, repo, repo_data["default_branch"])
-    
+    analysis = detect_framework(file_tree)
+    pages = discover_pages(file_tree)
 
     return {
     "owner": owner,
@@ -36,6 +37,8 @@ def get_repo_metadata(repo_url: str):
     "github_url": repo_data["html_url"],
     "file_count": len(file_tree),
     "sample_files": file_tree[:30],
+    "analysis": analysis,
+    "pages": pages,
 }
 
 
