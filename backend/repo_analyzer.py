@@ -35,3 +35,15 @@ def discover_pages(files: list[str]):
                 pages.append(page_name)
 
     return list(set(pages))
+
+
+def get_ui_files(files: list[str]):
+    ui_files = []
+
+    for file in files:
+        if file.endswith((".js", ".jsx", ".ts", ".tsx")):
+            if any(folder in file for folder in ["src/", "components/", "pages/", "app/"]):
+                if not file.endswith((".test.js", ".test.jsx", ".test.ts", ".test.tsx")):
+                    ui_files.append(file)
+
+    return ui_files[:10]
