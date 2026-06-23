@@ -59,3 +59,16 @@ def get_repo_file_tree(owner: str, repo: str, branch: str):
             files.append(item.get("path"))
 
     return files
+
+def get_file_content(owner: str, repo: str, branch: str, file_path: str):
+    file_url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{file_path}"
+
+    response = httpx.get(file_url)
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Could not fetch file content: {file_path}"
+        )
+
+    return response.text
