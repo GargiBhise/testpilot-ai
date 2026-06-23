@@ -1,5 +1,5 @@
 from urllib.parse import urlparse
-from repo_analyzer import detect_framework, discover_pages, get_ui_files
+from repo_analyzer import detect_framework, discover_pages, get_ui_files, discover_workflows
 import httpx
 from fastapi import HTTPException
 
@@ -26,6 +26,7 @@ def get_repo_metadata(repo_url: str):
     analysis = detect_framework(file_tree)
     pages = discover_pages(file_tree)
     ui_files = get_ui_files(file_tree)
+    workflows = discover_workflows(pages)
 
     return {
     "owner": owner,
@@ -41,6 +42,7 @@ def get_repo_metadata(repo_url: str):
     "analysis": analysis,
     "pages": pages,
     "ui_files": ui_files,
+    "workflows": workflows,
 }
 
 

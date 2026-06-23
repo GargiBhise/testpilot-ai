@@ -47,3 +47,20 @@ def get_ui_files(files: list[str]):
                     ui_files.append(file)
 
     return ui_files[:10]
+
+
+
+def discover_workflows(pages: list[str]):
+    workflows = []
+
+    if "Home" in pages:
+        for page in pages:
+            if page != "Home":
+                workflows.append({
+                    "name": f"Navigate from Home to {page}",
+                    "start_page": "Home",
+                    "target_page": page,
+                    "test_type": "navigation"
+                })
+
+    return workflows
