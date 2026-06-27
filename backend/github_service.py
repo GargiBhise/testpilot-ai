@@ -2,6 +2,7 @@ from urllib.parse import urlparse
 from repo_analyzer import detect_framework, discover_pages, get_ui_files, discover_workflows, extract_ui_elements, extract_user_actions
 import httpx
 from fastapi import HTTPException
+from context_builder import build_application_context
 
 
 def get_repo_metadata(repo_url: str):
@@ -42,7 +43,7 @@ def get_repo_metadata(repo_url: str):
         user_actions.extend(actions)
     
 
-    return {
+    repo_result = {
     "owner": owner,
     "repo": repo,
     "full_name": repo_data["full_name"],
@@ -61,7 +62,11 @@ def get_repo_metadata(repo_url: str):
     "user_actions": user_actions,
 }
 
+    application_context = build_application_context(repo_result)
 
+    repo_result["application_context"] = application_context
+
+    return repo_result
 
 def get_repo_file_tree(owner: str, repo: str, branch: str):
     tree_url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/{branch}?recursive=1"
