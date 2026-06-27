@@ -1,3 +1,6 @@
+import re
+
+
 def detect_framework(files: list[str]):
     file_set = set(files)
 
@@ -64,3 +67,71 @@ def discover_workflows(pages: list[str]):
                 })
 
     return workflows
+
+
+
+def extract_ui_elements(file_path: str, content: str):
+    elements = {
+        "file": file_path,
+        "buttons": [],
+        "links": [],
+        "forms": [],
+        "inputs": []
+    }
+
+    button_matches = re.findall(r"<button[^>]*>(.*?)</button>", content, re.DOTALL)
+    for button in button_matches:
+        clean_text = re.sub(r"<[^>]+>", "", button).strip()
+        if clean_text:
+            elements["buttons"].append(clean_text)
+
+    link_matches = re.findall(r"<Link[^>]*to=[\"']([^\"']+)[\"']", content)
+    elements["links"].extend(link_matches)
+
+    if "<form" in content:
+        elements["forms"].append("form_detected")
+
+    input_matches = re.findall(r"<input[^>]*placeholder=[\"']([^\"']+)[\"']", content)
+    elements["inputs"].extend(input_matches)
+
+    return elements
+
+
+
+def extract_user_actions(file_path: str, content: str):
+    actions = []
+
+    button_matches = re.findall(
+        r"<button[^>]*(?:onClick=\{([^}]+)\})?[^>]*>(.*?)</button>",
+        content,
+        re.DOTALL
+    )
+
+    for handler, label in button_matches:
+        clean_label = re.sub(r"<[^>]+>", "", label).strip()
+
+        if clean_label:
+            actions.append({
+                "file": file_path,
+                "type": "button",
+                "label": clean_label,
+                "handler": handler.strip() if handler else None
+            })
+
+    link_matches = re.findall(
+        r"<Link[^>]*to=[\"']([^\"']+)[\"'][^>]*>(.*?)</Link>",
+        content,
+        re.DOTALL
+    )
+
+    for target, label in link_matches:
+        clean_label = re.sub(r"<[^>]+>", "", label).strip()
+
+        actions.append({
+            "file": file_path,
+            "type": "navigation",
+            "label": clean_label if clean_label else f"Navigate to {target}",
+            "target": target
+        })
+
+    return actions

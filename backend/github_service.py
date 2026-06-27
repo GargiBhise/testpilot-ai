@@ -1,5 +1,5 @@
 from urllib.parse import urlparse
-from repo_analyzer import detect_framework, discover_pages, get_ui_files, discover_workflows
+from repo_analyzer import detect_framework, discover_pages, get_ui_files, discover_workflows, extract_ui_elements, extract_user_actions
 import httpx
 from fastapi import HTTPException
 
@@ -27,6 +27,20 @@ def get_repo_metadata(repo_url: str):
     pages = discover_pages(file_tree)
     ui_files = get_ui_files(file_tree)
     workflows = discover_workflows(pages)
+    ui_elements = []
+
+    for file_path in ui_files:
+        content = get_file_content(owner, repo, repo_data["default_branch"], file_path)
+        elements = extract_ui_elements(file_path, content)
+        ui_elements.append(elements)
+
+    user_actions = []
+
+    for file_path in ui_files:
+        content = get_file_content(owner, repo, repo_data["default_branch"], file_path)
+        actions = extract_user_actions(file_path, content)
+        user_actions.extend(actions)
+    
 
     return {
     "owner": owner,
@@ -43,6 +57,8 @@ def get_repo_metadata(repo_url: str):
     "pages": pages,
     "ui_files": ui_files,
     "workflows": workflows,
+    "ui_elements": ui_elements,
+    "user_actions": user_actions,
 }
 
 
