@@ -1,4 +1,4 @@
-def build_test_generation_prompt(application_context: dict):
+def build_test_generation_prompt(application_context: dict, test_request: dict):
     prompt = f"""
 You are an AI test generation assistant.
 
