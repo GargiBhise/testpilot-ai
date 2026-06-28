@@ -40,3 +40,41 @@ def create_test_plan(application_context: dict):
         })
 
     return test_plan
+
+
+
+def build_prompt_context(application_context: dict, test_request: dict):
+    return {
+        "application": application_context.get("application", {}),
+        "structure": {
+            "pages": application_context.get("structure", {}).get("pages", []),
+            "ui_files": application_context.get("structure", {}).get("ui_files", []),
+        },
+        "current_test": test_request,
+        "relevant_behavior": {
+            "workflows": application_context.get("behavior", {}).get("workflows", []),
+            "user_actions": application_context.get("behavior", {}).get("user_actions", []),
+        },
+    }
+
+
+
+def build_test_generation_prompt(application_context: dict, test_request: dict):
+    prompt_context = build_prompt_context(application_context, test_request)
+
+    prompt = f"""
+You are an AI assistant that generates Playwright tests.
+
+Generate one Playwright test for the current test request.
+
+Focused Context:
+{prompt_context}
+
+Requirements:
+- Use Playwright with TypeScript.
+- Focus only on the current test request.
+- Use stable selectors like role, text, and label.
+- Include clear test names.
+- Return only executable Playwright test code.
+"""
+    return prompt
